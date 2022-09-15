@@ -149,11 +149,71 @@
       <xsl:text>],</xsl:text>
     </xsl:if>
     
-    <!-- $institution variable setting logic should be updated -->
+    <!-- $institution variable setting logic should be updated to include more GBL institutions or modified for local use -->
     <xsl:text>"schema_provider_s": "</xsl:text>
     <xsl:value-of select="$institution"/>
     <xsl:text>",</xsl:text>
     
+    <!-- Resource Class from FGDC <geoform> ; this is a super rudimentary mapping
+      between the most common FGDC geoform domain values (which can also be free text) and GBL values;
+      "Collections" "Web services" and "Websites" aren't in the FGDC geoforms values list; best practice
+      might be to add themekeys for the gbl resourceclass values directly in FGDC and add
+      a mapping for this to the xsl, alternately one could use "collections" "web services" or "websites" in the 
+      FGDC <geoform> element when applicable and this xsl draft includes those mappings to GBL; 
+      also FGDC geoform is a single value, whereas resourceClass may have multivalues -->
+    
+    <xsl:choose>
+      <xsl:when test="contains(/metadata/idinfo/citation/citeinfo/geoform, 'vector digital data')">
+        <xsl:text>"gbl_resourceClass_sm": "</xsl:text>
+        <xsl:text>Datasets</xsl:text>
+        <xsl:text>",</xsl:text>
+      </xsl:when>
+      <xsl:when test="contains(/metadata/idinfo/citation/citeinfo/geoform, 'raster digital data')">
+        <xsl:text>"gbl_resourceClass_sm": "</xsl:text>
+        <xsl:text>Datasets</xsl:text>
+        <xsl:text>",</xsl:text>
+      </xsl:when>
+      <xsl:when test="contains(/metadata/idinfo/citation/citeinfo/geoform, 'tabular digital data')">
+        <xsl:text>"gbl_resourceClass_sm": "</xsl:text>
+        <xsl:text>Datasets</xsl:text>
+        <xsl:text>",</xsl:text>
+      </xsl:when>
+      <xsl:when test="contains(/metadata/idinfo/citation/citeinfo/geoform, 'digital data')">
+        <xsl:text>"gbl_resourceClass_sm": "</xsl:text>
+        <xsl:text>Datasets</xsl:text>
+        <xsl:text>",</xsl:text>
+      </xsl:when>
+      <xsl:when test="contains(/metadata/idinfo/citation/citeinfo/geoform, 'map')">
+        <xsl:text>"gbl_resourceClass_sm": "</xsl:text>
+        <xsl:text>Maps</xsl:text>
+        <xsl:text>",</xsl:text>
+      </xsl:when>      
+      <xsl:when test="contains(/metadata/idinfo/citation/citeinfo/geoform, 'remote-sensing image')">
+        <xsl:text>"gbl_resourceClass_sm": "</xsl:text>
+        <xsl:text>Imagery</xsl:text>
+        <xsl:text>",</xsl:text>
+      </xsl:when>
+      <xsl:when test="contains(/metadata/idinfo/citation/citeinfo/geoform, 'collections')">
+        <xsl:text>"gbl_resourceClass_sm": "</xsl:text>
+        <xsl:text>Collections</xsl:text>
+        <xsl:text>",</xsl:text>
+      </xsl:when>
+      <xsl:when test="contains(/metadata/idinfo/citation/citeinfo/geoform, 'web services')">
+        <xsl:text>"gbl_resourceClass_sm": "</xsl:text>
+        <xsl:text>Web services</xsl:text>
+        <xsl:text>",</xsl:text>
+      </xsl:when>
+      <xsl:when test="contains(/metadata/idinfo/citation/citeinfo/geoform, 'websites')">
+        <xsl:text>"gbl_resourceClass_sm": "</xsl:text>
+        <xsl:text>Website</xsl:text>
+        <xsl:text>",</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>"gbl_resourceClass_sm": "Other",</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+    
+<!--     
     <xsl:choose>
       <xsl:when test="contains(metadata/spdoinfo/ptvctinf/sdtsterm/sdtstype, 'G-polygon')">
         <xsl:text>"layer_geom_type_s": "</xsl:text>
@@ -176,6 +236,7 @@
         <xsl:text>",</xsl:text>
       </xsl:when>
     </xsl:choose>
+    -->
     
     <!-- this could be updated to exclude ISO topics which would go in dcat_theme_sm -->
     <xsl:if test="idinfo/keywords/theme/themekey">
