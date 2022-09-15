@@ -205,7 +205,7 @@
       </xsl:when>
       <xsl:when test="contains(/metadata/idinfo/citation/citeinfo/geoform, 'websites')">
         <xsl:text>"gbl_resourceClass_sm": "</xsl:text>
-        <xsl:text>Website</xsl:text>
+        <xsl:text>Websites</xsl:text>
         <xsl:text>",</xsl:text>
       </xsl:when>
       <xsl:otherwise>
@@ -555,7 +555,20 @@
       <xsl:text>],</xsl:text>
     </xsl:if>
 
-    <xsl:text>"solr_geom": "ENVELOPE(</xsl:text>
+    <!-- Bounding Box -->
+    <xsl:text>"dcat_bbox": "ENVELOPE(</xsl:text>
+    <xsl:value-of select="$x1"/>
+    <xsl:text>, </xsl:text>
+    <xsl:value-of select="$x2"/>
+    <xsl:text>, </xsl:text>
+    <xsl:value-of select="$y2"/>
+    <xsl:text>, </xsl:text>
+    <xsl:value-of select="$y1"/>
+    <xsl:text>)",</xsl:text>
+    
+    <!-- Geometry 
+      FGDC records only the bounding box coodinates in metadata standard; could derive more complex geometries from spatial data file -->
+    <xsl:text>"locn_geometry": "ENVELOPE(</xsl:text>
     <xsl:value-of select="$x1"/>
     <xsl:text>, </xsl:text>
     <xsl:value-of select="$x2"/>
