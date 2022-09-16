@@ -107,22 +107,26 @@
 
   <xsl:template match="metadata">
     <xsl:text>{</xsl:text>
-
+    
+    <!-- Title -->
     <xsl:text>"dct_title_s": "</xsl:text>
     <xsl:value-of select="idinfo/citation/citeinfo/title"/>
     <xsl:text>",</xsl:text>
 
+    <!-- Description -->
     <xsl:text>"dct_description_sm": "</xsl:text>
     <xsl:value-of select="idinfo/descript/abstract"/>
     <xsl:text>",</xsl:text>
     
-    <!-- This is not technically an FGDC element though sometimes appears in the ESRI FGDC Profile schema. Leave in crosswalk? -->
+    <!-- Language 
+       This is not technically an FGDC element though sometimes appears in the ESRI FGDC Profile schema. Leave in crosswalk? -->
     <xsl:if test="contains(idinfo/descript/langdata, 'en')">
       <xsl:text>"dct_language_sm": "</xsl:text>
       <xsl:text>English</xsl:text>
       <xsl:text>",</xsl:text>
     </xsl:if>
     
+    <!-- Creator -->
     <xsl:if test="idinfo/citation/citeinfo/origin">
       <xsl:text>"dct_creator_sm": [</xsl:text>
       <xsl:for-each select="idinfo/citation/citeinfo/origin">
@@ -136,6 +140,7 @@
       <xsl:text>],</xsl:text>
     </xsl:if>
     
+    <!-- Publisher -->
     <xsl:if test="idinfo/citation/citeinfo/pubinfo/publish">
       <xsl:text>"dct_publisher_sm": [</xsl:text>
       <xsl:for-each select="idinfo/citation/citeinfo/pubinfo/publish">
@@ -149,15 +154,18 @@
       <xsl:text>],</xsl:text>
     </xsl:if>
     
-    <!-- $institution variable setting logic should be updated to include more GBL institutions or modified for local use -->
+    <!-- Provider
+        $institution variable setting logic should be updated to include more GBL institutions or modified for local use -->
     <xsl:text>"schema_provider_s": "</xsl:text>
     <xsl:value-of select="$institution"/>
     <xsl:text>",</xsl:text>
     
-    <!-- Resource Class from FGDC <geoform> ; this is a super rudimentary mapping
+    <!-- Resource Class 
+      
+      from FGDC <geoform> ; this is a super rudimentary mapping
       between the most common FGDC geoform domain values (which can also be free text) and GBL values;
       "Collections" "Web services" and "Websites" aren't in the FGDC geoforms values list; best practice
-      might be to add themekeys for the gbl resourceclass values directly in FGDC and add
+      might be to add <themekey> elements for the gbl resourceClass values directly in FGDC and add
       a mapping for this to the xsl, alternately one could use "collections" "web services" or "websites" in the 
       FGDC <geoform> element when applicable and this xsl draft includes those mappings to GBL; 
       also FGDC geoform is a single value, whereas resourceClass may have multivalues -->
@@ -193,17 +201,17 @@
         <xsl:text>Imagery</xsl:text>
         <xsl:text>",</xsl:text>
       </xsl:when>
-      <xsl:when test="contains(/metadata/idinfo/citation/citeinfo/geoform, 'collections')">
+      <xsl:when test="contains(/metadata/idinfo/citation/citeinfo/geoform, 'collection')">
         <xsl:text>"gbl_resourceClass_sm": "</xsl:text>
         <xsl:text>Collections</xsl:text>
         <xsl:text>",</xsl:text>
       </xsl:when>
-      <xsl:when test="contains(/metadata/idinfo/citation/citeinfo/geoform, 'web services')">
+      <xsl:when test="contains(/metadata/idinfo/citation/citeinfo/geoform, 'web service')">
         <xsl:text>"gbl_resourceClass_sm": "</xsl:text>
         <xsl:text>Web services</xsl:text>
         <xsl:text>",</xsl:text>
       </xsl:when>
-      <xsl:when test="contains(/metadata/idinfo/citation/citeinfo/geoform, 'websites')">
+      <xsl:when test="contains(/metadata/idinfo/citation/citeinfo/geoform, 'website')">
         <xsl:text>"gbl_resourceClass_sm": "</xsl:text>
         <xsl:text>Websites</xsl:text>
         <xsl:text>",</xsl:text>
@@ -213,7 +221,7 @@
       </xsl:otherwise>
     </xsl:choose>
     
-<!--     
+<!--     Deprecated element - remove section
     <xsl:choose>
       <xsl:when test="contains(metadata/spdoinfo/ptvctinf/sdtsterm/sdtstype, 'G-polygon')">
         <xsl:text>"layer_geom_type_s": "</xsl:text>
@@ -238,7 +246,10 @@
     </xsl:choose>
     -->
     
-    <!-- this could be updated to exclude ISO topics which would go in dcat_theme_sm -->
+    <!-- Resource Type -->
+    
+    <!-- Subject 
+        this could be updated to exclude ISO topics which would then go into dcat_theme_sm -->
     <xsl:if test="idinfo/keywords/theme/themekey">
       <xsl:text>"dct_subject_sm": [</xsl:text>
       <xsl:for-each select="idinfo/keywords/theme/themekey">
@@ -254,8 +265,9 @@
       <xsl:text>],</xsl:text>
     </xsl:if>
     
-    <!-- singular content date: YYYY -->
+    <!-- Temporal Coverage -->
     
+    <!-- singular content date: YYYY -->
     <xsl:for-each select="idinfo/timeperd/timeinfo/sngdate/caldate">
       <xsl:if test="text() !='' ">
         <xsl:text>"dct_temporal_sm": ["</xsl:text>
@@ -264,13 +276,11 @@
       </xsl:if>
     </xsl:for-each>
     
-    
     <xsl:for-each select="idinfo/timeperd/timeinfo/mdattim/sngdate">
       <xsl:text>"dct_temporal_sm": ["</xsl:text>
       <xsl:value-of select="substring(caldate,1,4)"/>
       <xsl:text>"],</xsl:text>
     </xsl:for-each>
-    
     
     <!-- months, days YYYY-MM, YYYY-MM-DD
              <xsl:when test="string-length(idinfo/timeperd/timeinfo/sngdate/caldate)=4">
@@ -290,7 +300,6 @@
              </xsl:when>  -->
     
     <!-- content date range: YYYY-YYYY if dates in range differ -->
-    
     <xsl:for-each select="idinfo/timeperd/timeinfo/rngdates">
       <xsl:text>"dct_temporal_sm": ["</xsl:text>
       <xsl:value-of select="substring(begdate, 1,4)"/>
@@ -309,6 +318,7 @@
       </xsl:if>
     </xsl:for-each>
     
+    <!-- Date Issued -->
     <xsl:choose>
       <xsl:when test="string-length(idinfo/citation/citeinfo/pubdate)=4">
         <xsl:text>"dct_issued_s": "</xsl:text>
@@ -334,9 +344,10 @@
         <xsl:text>",</xsl:text>
       </xsl:when>
     </xsl:choose>
-        
-    <!-- content date for solr year: choose singular, or beginning date of range: YYYY 
-    Origianl source section replaced with section from Harvard fgdc2geoBL.xsl and updated for Aardvark -->
+
+    <!-- Index Year
+        content date for solr year: choose singular, or beginning date of range: YYYY 
+        Original xsl source section replaced with section from Harvard fgdc2geoBL.xsl and updated for Aardvark -->
     <xsl:if test="idinfo/timeperd/timeinfo">
       <xsl:choose>
         <xsl:when test="(idinfo/timeperd/timeinfo/sngdate/caldate/text() != '') and (string(number(idinfo/timeperd/timeinfo/sngdate/caldate)) != 'NaN')">
@@ -367,7 +378,8 @@
           </xsl:for-each>
         </xsl:when>
         
-        <!-- currently the schema is built so one has to have a solr_year_i setting to a non real value for cleanup-->
+        <!--  Not sure if the following comment still applies to Aardvark - marc
+          currently the schema is built so one has to have a solr_year_i setting to a non real value for cleanup-->
         <xsl:otherwise>
           <xsl:text>"gbl_indexYear_im": 9999</xsl:text>
         </xsl:otherwise>
@@ -375,7 +387,8 @@
       <xsl:text>,</xsl:text>
     </xsl:if>
 
-    <!-- added element for Aardvark, double check logic -->
+    <!-- Date Range
+        added this element for Aardvark, double check logic -->
     <xsl:for-each select="idinfo/timeperd/timeinfo/rngdates">
       <xsl:text>"gbl_dateRange_drsim": ["[</xsl:text>
       <xsl:value-of select="substring(begdate, 1,4)"/>
@@ -386,6 +399,7 @@
       <xsl:text>]"],</xsl:text>
     </xsl:for-each>
 
+    <!-- Spatial Coverage -->
     <xsl:if test="idinfo/keywords/place/placekey">
       <xsl:text>"dct_spatial_sm": [</xsl:text>
       <xsl:for-each select="idinfo/keywords/place/placekey">
@@ -399,12 +413,37 @@
       <xsl:text>],</xsl:text>
     </xsl:if>
     
-
-    <!-- idinfo/acconst is a free text field, so there would have to be some consistency in the coding in this field for a convesion to work reliably. 
-      e.g. first word either "Public" or "Restricted" as best practice; 
-      current xsl has some logic to populate the gbl value but may not capture all variations  
-      -->
+    <!-- Geometry 
+      FGDC records only the bounding box coodinates in metadata standard; could derive more complex geometries from spatial data file -->
+    <xsl:text>"locn_geometry": "ENVELOPE(</xsl:text>
+    <xsl:value-of select="$x1"/>
+    <xsl:text>, </xsl:text>
+    <xsl:value-of select="$x2"/>
+    <xsl:text>, </xsl:text>
+    <xsl:value-of select="$y2"/>
+    <xsl:text>, </xsl:text>
+    <xsl:value-of select="$y1"/>
+    <xsl:text>)",</xsl:text>
     
+    <!-- Bounding Box -->
+    <xsl:text>"dcat_bbox": "ENVELOPE(</xsl:text>
+    <xsl:value-of select="$x1"/>
+    <xsl:text>, </xsl:text>
+    <xsl:value-of select="$x2"/>
+    <xsl:text>, </xsl:text>
+    <xsl:value-of select="$y2"/>
+    <xsl:text>, </xsl:text>
+    <xsl:value-of select="$y1"/>
+    <xsl:text>)",</xsl:text>
+    
+    <!-- Rights -->
+    
+    <!-- Access Rights
+      
+      idinfo/acconst is a free text field, so there would have to be some consistency in the coding in this field for a convesion to work reliably. 
+      e.g. first word either "Public" or "Restricted" as best practice; 
+      current xsl has some logic to identify and populate the gbl value but may not capture all variations  
+      -->
     <xsl:text>"dct_accessRights_s": "</xsl:text>
     <xsl:choose>
       <xsl:when test="contains(idinfo/accconst, 'Restricted')">
@@ -436,10 +475,24 @@
       </xsl:otherwise>
     </xsl:choose>
     <xsl:text>",</xsl:text>
+    
+    <!-- Format -->
+    <xsl:text>"dct_format_s": "</xsl:text>
+    <xsl:value-of select="$format"/>
+    <xsl:text>",</xsl:text>
+    
+    <!-- File Size 
+        default is to take the first occurance of the <transize> value; 
+        could build-in a check for MB (FGDC specifies MD values for this element) -->
+    <xsl:if test="distinfo/stdorder/digform/digtinfo/transize">
+      <xsl:text>"gbl_fileSize_s": "</xsl:text>
+      <xsl:value-of select="distinfo/stdorder/digform/digtinfo/transize"/>
+      <xsl:text>",</xsl:text>
+    </xsl:if>
 
+    <!-- References - legacy xsl code here; keep?
 
-
- <!--       <field name="dct_references_s">
+          <field name="dct_references_s">
           <xsl:text>{</xsl:text>
           <xsl:text>"http://schema.org/url":"</xsl:text>
           <xsl:value-of select="$purl"/>
@@ -474,30 +527,16 @@
           <xsl:text>}</xsl:text>
         </field>  -->
 
-    <xsl:text>"layer_id_s": "</xsl:text>
-    <xsl:text>urn:</xsl:text>
-    <xsl:value-of select="$uuid"/>
-    <xsl:text>",</xsl:text>
-
-    <xsl:text>"layer_slug_s": "</xsl:text>
-    <xsl:value-of select="$institution"/>
-    <xsl:text>-</xsl:text>
-    <xsl:value-of select="$uuid"/>
-    <xsl:text>",</xsl:text>
-
-
-
-
-
+    <!-- Modified -->
     <xsl:choose>
       <xsl:when test="string-length(metainfo/metd)=4">
-        <xsl:text>"layer_modified_dt": "</xsl:text>
+        <xsl:text>"gbl_mdModified_dt": "</xsl:text>
         <xsl:value-of select="metainfo/metd"/>
         <xsl:text>",</xsl:text>
       </xsl:when>
 
       <xsl:when test="string-length(metainfo/metd)=6">
-        <xsl:text>"layer_modified_dt": "</xsl:text>
+        <xsl:text>"gbl_mdModified_dt": "</xsl:text>
         <xsl:value-of select="substring(metainfo/metd,1,4)"/>
         <xsl:text>-</xsl:text>
         <xsl:value-of select="substring(metainfo/metd,5,2)"/>
@@ -505,79 +544,28 @@
       </xsl:when>
 
       <xsl:when test="string-length(metainfo/metd)=8">
-        <xsl:text>"layer_modified_dt": "</xsl:text>
+        <xsl:text>"gbl_mdModified_dt": "</xsl:text>
         <xsl:value-of select="substring(metainfo/metd,1,4)"/>
         <xsl:text>-</xsl:text>
         <xsl:value-of select="substring(metainfo/metd,5,2)"/>
         <xsl:text>-</xsl:text>
         <xsl:value-of select="substring(metainfo/metd,7,2)"/>
-        <xsl:text>",</xsl:text>
+        <xsl:text>T12:00:00Z",</xsl:text>
       </xsl:when>
     </xsl:choose>
 
 
 
-
-
-
-
-
-
-    <xsl:text>"dc_format_s": "</xsl:text>
-    <xsl:value-of select="$format"/>
+    <xsl:text>"layer_id_s": "</xsl:text>
+    <xsl:text>urn:</xsl:text>
+    <xsl:value-of select="$uuid"/>
     <xsl:text>",</xsl:text>
-
-
-
-    <!-- DCMI Type vocabulary: defaults to dataset -->
-    <xsl:text>"dc_type_s": "</xsl:text>
-    <xsl:text>Dataset</xsl:text>
-    <xsl:text>",</xsl:text>
-
-
-
-
-
-
-
-    <!-- collection -->
-
-    <xsl:if test="idinfo/citation/citeinfo/lworkcit/citeinfo | idinfo/citation/citeinfo/serinfo/sername">
-      <xsl:text>"dct_isPartOf_sm": [</xsl:text>
-      <xsl:for-each select="idinfo/citation/citeinfo/lworkcit/citeinfo | idinfo/citation/citeinfo/serinfo">
-      <xsl:text>"</xsl:text>
-      <xsl:value-of select="title | sername"/>
-      <xsl:text>"</xsl:text>
-        <xsl:if test="position() != last()">
-          <xsl:text>,</xsl:text>
-        </xsl:if>
-    </xsl:for-each>
-      <xsl:text>],</xsl:text>
-    </xsl:if>
-
-    <!-- Bounding Box -->
-    <xsl:text>"dcat_bbox": "ENVELOPE(</xsl:text>
-    <xsl:value-of select="$x1"/>
-    <xsl:text>, </xsl:text>
-    <xsl:value-of select="$x2"/>
-    <xsl:text>, </xsl:text>
-    <xsl:value-of select="$y2"/>
-    <xsl:text>, </xsl:text>
-    <xsl:value-of select="$y1"/>
-    <xsl:text>)",</xsl:text>
     
-    <!-- Geometry 
-      FGDC records only the bounding box coodinates in metadata standard; could derive more complex geometries from spatial data file -->
-    <xsl:text>"locn_geometry": "ENVELOPE(</xsl:text>
-    <xsl:value-of select="$x1"/>
-    <xsl:text>, </xsl:text>
-    <xsl:value-of select="$x2"/>
-    <xsl:text>, </xsl:text>
-    <xsl:value-of select="$y2"/>
-    <xsl:text>, </xsl:text>
-    <xsl:value-of select="$y1"/>
-    <xsl:text>)",</xsl:text>
-
+    <xsl:text>"layer_slug_s": "</xsl:text>
+    <xsl:value-of select="$institution"/>
+    <xsl:text>-</xsl:text>
+    <xsl:value-of select="$uuid"/>
+    <xsl:text>",</xsl:text>
 
 
     <xsl:text>"dc_identifier_s": "</xsl:text>
