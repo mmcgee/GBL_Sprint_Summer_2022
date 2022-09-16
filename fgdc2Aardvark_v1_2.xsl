@@ -5,7 +5,7 @@
         -updates include:
           -re-ordering of elements according to Aardvark element numbering scheme
         
-
+  ****  WARNING: working DRAFT in progress as of 9/16/2022 ****
           -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   version="1.0">
@@ -89,11 +89,13 @@
     </xsl:choose>
   </xsl:variable>
 
-
+  <!-- legacy uuid variable
+    
+    logic needs to be updated for more institutions; used with Aardvark ID -->
   <xsl:variable name="uuid">
     <xsl:choose>
       <xsl:when test="$institution = 'Harvard'">
-        <xsl:value-of select="substring-after(metadata/idinfo/citation/citeinfo/onlink, 'CollName=')"/>
+        <xsl:value-of select="substring-after(metadata/idinfo/citation/citeinfo/onlink, 'harvard-')"/>
       </xsl:when>
       <xsl:when test="$institution = 'MIT'">
         <xsl:value-of select="metadata/spdoinfo/ptvctinf/sdtsterm/@Name"/>
@@ -221,7 +223,9 @@
       </xsl:otherwise>
     </xsl:choose>
     
-<!--     Deprecated element - remove section
+    <!-- Resource Type -->
+    
+    <!-- Deprecated element - most closely related to Aardvark Resource Type remove section?
     <xsl:choose>
       <xsl:when test="contains(metadata/spdoinfo/ptvctinf/sdtsterm/sdtstype, 'G-polygon')">
         <xsl:text>"layer_geom_type_s": "</xsl:text>
@@ -245,8 +249,6 @@
       </xsl:when>
     </xsl:choose>
     -->
-    
-    <!-- Resource Type -->
     
     <!-- Subject 
         this could be updated to exclude ISO topics which would then go into dcat_theme_sm -->
@@ -489,6 +491,17 @@
       <xsl:value-of select="distinfo/stdorder/digform/digtinfo/transize"/>
       <xsl:text>",</xsl:text>
     </xsl:if>
+    
+    
+    <!-- WxS Identifier
+      
+     legacy code below for layer_id_s:
+     
+    <xsl:text>"gbl_wxsIdentifier_s": "</xsl:text>
+    <xsl:text>urn:</xsl:text>
+    <xsl:value-of select="$uuid"/>
+    <xsl:text>",</xsl:text>
+     -->
 
     <!-- References - legacy xsl code here; keep?
 
@@ -526,6 +539,24 @@
           <xsl:text>/wcs"</xsl:text>
           <xsl:text>}</xsl:text>
         </field>  -->
+    
+    <!-- ID -->
+    <xsl:text>"id": "</xsl:text>
+    <xsl:value-of select="$institution"/>
+    <xsl:text>-</xsl:text>
+    <xsl:value-of select="$uuid"/>
+    <xsl:text>",</xsl:text>
+    
+    <!-- Identifier  
+    
+    the nature of this element has changed with Aardvark; the definition
+    of identifier is now broader so this following legacy transformation is no
+    no longer useful; no specific identifier fields exist within FGDC
+    
+    <xsl:text>"dct_identifier_s": "</xsl:text>
+    <xsl:value-of select="idinfo/citation/citeinfo/onlink"/>
+    <xsl:text>",</xsl:text>
+     -->
 
     <!-- Modified -->
     <xsl:choose>
@@ -553,24 +584,6 @@
         <xsl:text>T12:00:00Z",</xsl:text>
       </xsl:when>
     </xsl:choose>
-
-
-
-    <xsl:text>"layer_id_s": "</xsl:text>
-    <xsl:text>urn:</xsl:text>
-    <xsl:value-of select="$uuid"/>
-    <xsl:text>",</xsl:text>
-    
-    <xsl:text>"layer_slug_s": "</xsl:text>
-    <xsl:value-of select="$institution"/>
-    <xsl:text>-</xsl:text>
-    <xsl:value-of select="$uuid"/>
-    <xsl:text>",</xsl:text>
-
-
-    <xsl:text>"dc_identifier_s": "</xsl:text>
-    <xsl:value-of select="idinfo/citation/citeinfo/onlink"/>
-    <xsl:text>",</xsl:text>
 
     <xsl:text>"gbl_mdVersion_s": "Aardvark"</xsl:text>
     
